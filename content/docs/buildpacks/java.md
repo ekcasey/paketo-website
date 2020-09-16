@@ -7,23 +7,27 @@ menu:
 ---
 
 # Java Buildpack
-The [Java Buildpack](https://github.com/) allows users to create an image from a precompiled artifact or directly from source.
+The [Java Buildpack][java] allows users to create an image containing a JVM application or task from a precompiled artifact or directly from source.
 
-To build a sample app locally with this buildpack using the `pack` CLI, run
+## About the Examples
+Examples in these docs will use sample applications from https://github.com/paketo-buildpacks/samples. All Examples assume that the root of this repostitory is the working directory.
 
-{{< code/copyable >}}
-git clone https://github.com/paketo-buildpacks/samples
-cd samples/jar
-pack build example/app --buildpack gcr.io/paketo-buildpacks/java
-{{< /code/copyable >}}
+The [`pack` CLI](https://github.com/buildpacks/pack) is used throughout the examples for consistency with other buildpack docuentation and the explicitness of it's interface. `pack` is just one of several Cloud Native Buildpacks [platforms](https://buildpacks.io/docs/concepts/components/platform/). Spring Boot developers may want to explore the Spring Boot Maven Plugin or Spring Boot Gradle Plugin.
 
 ## Table of Contents
 <!-- Using https://github.com/yzhang-gh/vscode-markdown to manage toc -->
 - [Java Buildpack](#java-buildpack)
+  - [About the Examples](#about-the-examples)
   - [Table of Contents](#table-of-contents)
-  - [Build](#build)
+  - [Building an Image](#building-an-image)
     - [From Source](#from-source)
+      - [**Example: Building with Maven**](#example-building-with-maven)
     - [From a Precompiled Artifact](#from-a-precompiled-artifact)
+      - [Executable JAR](#executable-jar)
+      - [WAR](#war)
+      - [Distribution ZIP](#distribution-zip)
+      - [**Example: Building from an Executable JAR**](#example-building-from-an-executable-jar)
+    - [](#)
     - [Configuration](#configuration)
       - [Environment Variables](#environment-variables)
       - [Bindings](#bindings)
@@ -43,47 +47,22 @@ pack build example/app --buildpack gcr.io/paketo-buildpacks/java
     - [Buildpack-Provided Labels](#buildpack-provided-labels)
     - [User-Provided Labels](#user-provided-labels)
   - [Modular Components](#modular-components)
-      - [JAR](#jar)
-  - [Reference](#reference)
-    - [Source Code](#source-code)
-    - [Process Types](#process-types)
-    - [Providing Additional Arguments](#providing-additional-arguments-1)
-    - [JRE](#jre)
-  - [Build Configuration](#build-configuration)
-    - [JRE/JDK](#jrejdk)
-    - [Precompiled Artifacts](#precompiled-artifacts)
-      - [JAR](#jar-1)
-      - [WAR](#war)
-      - [Distribution ZIP](#distribution-zip)
-    - [Build Tools](#build-tools)
-      - [Gradle](#gradle)
-        - [Environment Variables](#environment-variables-2)
-      - [Maven](#maven)
-        - [Environment Variables](#environment-variables-3)
-        - [Maven Settings](#maven-settings)
-      - [Leinigen](#leinigen)
-      - [sbt](#sbt)
-    - [APM Integrations](#apm-integrations)
-      - [Azure Application Insights](#azure-application-insights)
-      - [Google Stackdriver](#google-stackdriver)
-    - [Debug Configuration](#debug-configuration)
-    - [Remapping Dependency URIs](#remapping-dependency-uris)
-  - [Run Configuration](#run-configuration)
-  - [Metadata](#metadata)
 
 ## Building an Image
 The java buildpack can build an image from source or from a precompiled artifact.
 
 ### From Source
 The java buildpack can also build from Source using any of the following build tools:
-* Gradle
-* Leiningen
-* Maven
-* sbt
+* [Gradle][gradle]
+* [Leiningen][leiningen]
+* [Maven][maven]
+* [sbt][sbt]
 
-The build should produce one the of supported artifact formats in the section below. After building the buildpack will replace provided application source code with the exploded archive.
+The build should produce one the of supported artifact formats in the section below. After building, the buildpack will replace provided application source code with the exploded archive. The build will procede as described [here](#from-a-precompiled-artifact).
 
-The following example uses the `pack` CLI, to build an image from source code with `maven`. This build will produce an app image identical to produce by the previous example.
+#### **Example: Building with Maven**
+
+The following command uses the `pack` CLI, to build with `maven`.
 
 {{< code/copyable >}}
 cd samples/java/maven
@@ -92,19 +71,30 @@ pack build example/app
 
 ### From a Precompiled Artifact
 An application developer may build an image from following archive formats:
-* JAR
-* WAR
-* Distribution Zip
+* [Executable JAR][executable jar]
+* [WAR][war]
+* [Distribution ZIP][dist-zip]
  
 The java buildpack expects the application directory to contain the extracted contents of the archive (e.g. an exploded JAR). Most platforms will automatically extract provided archives.
 
-The following example uses the `pack` CLI, to build from an application JAR file provided with the `--path` flag.
+#### Executable JAR
+
+#### WAR
+#### Distribution ZIP
+
+#### **Example: Building from an Executable JAR**
+
+The following command uses `maven` directly to compile an executable JAR and then uses the `pack` CLI to build an image from the JAR.
 
 {{< code/copyable >}}
 cd samples/java/maven
 ./mvnw package
 pack build example/app --path ./target/demo-0.0.1-SNAPSHOT.jar --buildpack gcr.io/paketo-buildpacks/java
 {{< /code/copyable >}}
+
+The resulting application image will be identical to that built in [Example 1](#example-1-building-from-source-with-maven) with the excluding 
+
+### 
 
 
 ### Configuration
@@ -326,121 +316,13 @@ The Java Buildpack is composed multiple component buildpacks.
 * [`paketo-buildpacks/sbt`](https://github.com/paketo-buildpacks/sbt)
 * [`paketo-buildpacks/spring-boot`](https://github.com/paketo-buildpacks/spring-boot)
 
-#### JAR
-**Detection Criteria**: A `META-INF/MANIFEST.MF` containing a Main-Class entry
-
-If an exploded JAR is detected, the buildpack will:
-* Add the application directory to the Class Path
-* Add any Class-Path entries from  `META-INF/MANIFEST.MF` to the Class Path
-* Add `executable-jar`, `web` and `task` process types that execute the following command
-
-``
-
-## Reference
-###
-
-### Source Code
-
-### Process Types
 
 
-### Providing Additional Arguments
-
-### JRE
-
-## Build Configuration
-
-The Java Buildpack accepts most configuration options as environment variables.
-
-### JRE/JDK
-### Precompiled Artifacts
-
-#### JAR
-
-#### WAR
-
-#### Distribution ZIP
-
-### Build Tools
-
-#### Gradle
-
-##### Environment Variables
-* `BP_MAVEN_BUILD_ARGUMENTS`
-    * **Default**: `-Dmaven.test.skip=true package`
-    * **Description**: Arguments to pass to `maven`.
-    * **Example**: To package using the `dev` profile, set `BP_MAVEN_BUILD_ARGUMENTS="-Dmaven.test.skip=true package -Pdev`
-    
-* `BP_MAVEN_BUILT_MODULE`
-    * **Default**: none (the root/parent module is selected by default)
-    * **Description**: The subdirectory in which the buildpack will look for the application artifact, typically a submodule in a multi-module project. Superceded by `BP_MAVEN_BUILT_ARTIFACT`.
-    * **Example**: If `BP_MAVEN_BUILT_MODULE=my-service`, the buildpack will look for an artifact matching `my-service/target/*.[jw]ar` after building.
-    
-* `BP_MAVEN_BUILT_ARTIFACT`
-    * **Default**: `target/*.[jw]ar`
-    * **Description**: Path to the built application artifact, relative to the application root. Matching artifacts are selected using [shell pattern matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html#Pattern-Matching). If the pattern matches more than one valid artifact the buildpack will return an error. Supercedes `BP_MAVEN_BUILT_MODULE`.
-    * **Example**: Given `BP_MAVEN_BUILT_ARTIFACT=my-service/target/artifact-*.zip`, the buildpack would select the artifact at path `my-service/target/artifact-1.2.3.zip`.
-    
-#### Maven
-If a file with the name `pom.xml` exists at the root of the application the buildpack will build the application with [Maven][TODO: fill me in].
-
-##### Environment Variables
-* `BP_MAVEN_BUILD_ARGUMENTS`
-    * **Default**: `-Dmaven.test.skip=true package`
-    * **Description**: Arguments to pass to `maven`.
-    * **Example**: To package using the `dev` profile, set `BP_MAVEN_BUILD_ARGUMENTS="-Dmaven.test.skip=true package -Pdev`
-    
-* `BP_MAVEN_BUILT_MODULE`
-    * **Default**: none (the root/parent module is selected by default)
-    * **Description**: The subdirectory in which the buildpack will look for the application artifact, typically a submodule in a multi-module project. Superceded by `BP_MAVEN_BUILT_ARTIFACT`.
-    * **Example**: If `BP_MAVEN_BUILT_MODULE=my-service`, the buildpack will look for an artifact matching `my-service/target/*.[jw]ar` after building.
-    
-* `BP_MAVEN_BUILT_ARTIFACT`
-    * **Default**: `target/*.[jw]ar`
-    * **Description**: Path to the built application artifact, relative to the application root. Matching artifacts are selected using [shell pattern matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html#Pattern-Matching). If the pattern matches more than one valid artifact the buildpack will return an error. Supercedes `BP_MAVEN_BUILT_MODULE`.
-    * **Example**: Given `BP_MAVEN_BUILT_ARTIFACT=my-service/target/artifact-*.zip`, the buildpack would select the artifact at path `my-service/target/artifact-1.2.3.zip`.
-    
-##### Maven Settings
-
-To provide a custom maven `settings.xml` file
-
-
-#### Leinigen
-If a file with the name `project.clj` exists at the root of the application the Java Buildpack will build the application with [Leiningen][l].
-
-* `BP_LEIN_BUILD_ARGUMENTS`
-    * **Default**: `uberjar`
-    * **Description**: Arguments to pass to the `lein` CLI.
-    * **Example**: To run unit test first and then build a war file with the [lein-uberwar][lu] plugin, set `BP_LEIN_BUILD_ARGUMENTS="do test, uberwar"`
-
-* `BP_LEIN_BUILT_ARTIFACT`
-    * **Default**: `uberjar`
-    * **Description**: Arguments to pass to the `lein` CLI.
-    * **Example**: To run unit test first and then build a war file with the [lein-uberwar][lu] plugin, set `BP_LEIN_BUILD_ARGUMENTS="do test, uberwar"`
-
-* `BP_LEIN_BUILT_MODULE`
-    * **Default**: N/A
-    * **Description**: Desired Module within a multimodule project. Super
-    * **Example**:
-    
- 
-
-#### sbt
-
-### APM Integrations
-
-#### Azure Application Insights
-
-#### Google Stackdriver
-
-### Debug Configuration
-
-### Remapping Dependency URIs
-
-## Run Configuration
-
-## Metadata
-
-
-[l]:http://www.apache.org/licenses/LICENSE-2.0
-[lu]:https://github.com/luminus-framework/lein-uberwar
+[dist-zip]:https://docs.gradle.org/current/userguide/distribution_plugin.html
+[gradle]:https://gradle.org/
+[maven]:https://maven.apache.org/
+[leiningen]:https://leiningen.org/
+[sbt]:https://www.scala-sbt.org/index.html
+[executable jar]:https://en.wikipedia.org/wiki/JAR_(file_format)#Executable_JAR_files
+[war]:https://en.wikipedia.org/wiki/WAR_(file_format)
+[java]:https://github.com/paketo-buildpacks/java
