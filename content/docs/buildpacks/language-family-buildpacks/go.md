@@ -3,7 +3,7 @@ title: "Go Buildpack"
 weight: 302
 menu:
   main:
-    parent: "composite-buildpacks"
+    parent: "language-family-buildpacks"
 ---
 
 # Go Buildpack
