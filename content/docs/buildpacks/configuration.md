@@ -1,12 +1,13 @@
 ---
-title: "Buildpack Configuration"
+title: "Configuring Paketo Buildpacks"
 weight: 300
 menu:
   main:
     parent: buildpacks
+    indentifier: configuration
 ---
 
-# Buildpack Configuration
+# Configuring Paketo Buildpacks
 - [Working with Paketo Buildpacks](#working-with-paketo-buildpacks)
   - [Types of Configuration](#types-of-configuration)
     - [Environment Variables](#environment-variables)
